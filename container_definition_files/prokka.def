@@ -1,0 +1,131 @@
+Bootstrap: docker
+From: bitnami/minideb:bullseye
+
+%environment
+	export LC_ALL=C
+
+%post
+	apt-get update && apt-get upgrade -y
+	apt-get install -y \
+	aragorn \
+	g++ \
+	make \
+	parallel \
+	python3 \
+	unzip \
+	wget \
+	zlib1g-dev \
+	libbz2-dev \
+	liblzma-dev \
+	libidn11 \
+	libdatetime-perl \
+	libxml-simple-perl \
+	libdigest-md5-perl \
+	bioperl \
+	libc6-i386 \
+	libc6-x32 \
+	libxi6 \
+	libxtst6
+
+	mv /usr/bin/parallel /usr/bin/gnu_parallel
+	ln -s /usr/bin/python3 /usr/bin/python
+
+	#java and javac
+	wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.deb
+	dpkg -i jdk-17_linux-x64_bin.deb
+	update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-17/bin/java 1
+	update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-17/bin/javac 1
+	export JAVA_HOME=/usr/lib/jvm/jdk-17/
+	export PATH=$PATH:$JAVA_HOME/bin
+
+	#blast
+	cd /
+	wget https://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.13.0+-src.tar.gz
+	tar -xvf ncbi-blast-2.13.0+-src.tar.gz
+	rm -r ncbi-blast-2.13.0+-src.tar.gz
+	cd /ncbi-blast-2.13.0+-src/c++
+	./configure
+	cd ReleaseMT/build
+	make all_r
+	mv /ncbi-blast-2.13.0+-src/c++/ReleaseMT/bin/* /usr/local/bin/
+
+	#tbl2asn
+	cd /
+	wget https://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz
+	gunzip /linux64.tbl2asn.gz
+	chmod +x /linux64.tbl2asn
+	mv /linux64.tbl2asn /usr/local/bin/tbl2asn
+
+	#Prodigal
+	cd /
+	wget https://github.com/hyattpd/Prodigal/archive/refs/tags/v2.6.3.tar.gz
+	tar -xvf /v2.6.3.tar.gz
+	rm -r /v2.6.3.tar.gz
+	cd /Prodigal-2.6.3
+	make install INSTALLDIR=/usr/local/bin
+
+	#hmmer3
+	cd /
+	wget http://eddylab.org/software/hmmer/hmmer.tar.gz
+	tar -zxf /hmmer.tar.gz
+	rm -r /hmmer.tar.gz
+	cd /hmmer-3.3.2/
+	./configure
+	make && make check && make install
+
+	#bedtools
+	cd /
+	wget https://github.com/arq5x/bedtools2/releases/download/v2.30.0/bedtools-2.30.0.tar.gz
+	tar -xvzf /bedtools-2.30.0.tar.gz
+	rm -r /bedtools-2.30.0.tar.gz
+	cd /bedtools2
+	make
+	mv ./bin/* /usr/local/bin
+
+	#barrnap
+	cd /
+	wget https://github.com/tseemann/barrnap/archive/refs/tags/0.9.tar.gz
+	tar -xvf /0.9.tar.gz
+	rm -r /0.9.tar.gz
+	cd /barrnap-0.9/
+	make test && make bigtest && make clean
+	echo "export PATH=/barrnap-0.9/bin:$PATH" >> $SINGULARITY_ENVIRONMENT 
+
+	#infernal
+	cd /
+	wget eddylab.org/infernal/infernal-1.1.4.tar.gz
+	tar -xf /infernal-1.1.4.tar.gz
+	rm -r /infernal-1.1.4.tar.gz
+	cd /infernal-1.1.4
+	./configure
+	make && make check && make install
+
+	#minced
+	cd /
+	wget https://github.com/ctSkennerton/minced/archive/refs/tags/0.4.2.tar.gz
+	tar -xvf /0.4.2.tar.gz
+	rm -r /0.4.2.tar.gz
+	cd /minced-0.4.2/
+	make
+	mv minced* /usr/local/bin
+	mv CRISPR* /usr/local/bin
+	mv DNA* /usr/local/bin
+	mv FASTA* /usr/local/bin
+	mv Interval* /usr/local/bin
+	mv SearchUtil* /usr/local/bin
+
+	#prokka
+	cd /
+	wget https://github.com/tseemann/prokka/archive/refs/tags/v1.14.5.tar.gz
+	tar -xvf /v1.14.5.tar.gz
+	rm -r /v1.14.5.tar.gz
+	echo "export PATH=/prokka-1.14.5/bin:$PATH" >> $SINGULARITY_ENVIRONMENT
+	chmod ugo+x /.singularity.d/env/91-environment.sh
+
+	
+	 
+	
+	
+
+
+
