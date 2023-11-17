@@ -1,0 +1,21 @@
+Bootstrap: docker
+From: bitnami/minideb:bullseye
+
+%files
+	bins_filter.py
+
+%environment
+	export LC_ALL=C
+
+%post
+	apt-get update && apt-get upgrade -y
+	apt-get install -y \
+	python3 \
+	pip
+
+	ln -s /usr/bin/python3 /usr/bin/python
+
+	pip3 install pandas
+
+	mv /bins_filter.py /usr/local/bin
+	chmod 755 /usr/local/bin/bins_filter.py
