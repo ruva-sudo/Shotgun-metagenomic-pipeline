@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: bitnami/minideb:bullseye
+
+%environment
+	export LC_ALL=C
+
+%post
+	apt-get update && apt-get upgrade -y
+	apt-get install -y \
+	python3 \
+	make \
+	gcc \
+	default-jre \
+	r-base \
+	wget \
+	zlib1g-dev \
+	libbz2-dev \
+	liblzma-dev \
+	pkg-config \
+	libfreetype6-dev \
+	libpng-dev \
+	python3-matplotlib \
+
+	ln -s /usr/bin/python3 /usr/bin/python
+
+	cd /
+	wget https://github.com/ablab/quast/archive/refs/tags/quast_5.2.0.tar.gz
+	tar -xzf /quast_5.2.0.tar.gz
+	rm -r /quast_5.2.0.tar.gz
+	cd /quast-quast_5.2.0
+	./install_full.sh || true
+	chmod 755 /quast-quast_5.2.0/metaquast.py
+
+	echo "export PATH=$PATH:/quast-quast_5.2.0" >> $SINGULARITY_ENVIRONMENT
+	chmod a+x /.singularity.d/env/91-environment.sh
+
+	rm -r /quast-quast_5.2.0/test_data/	
