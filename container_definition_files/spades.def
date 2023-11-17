@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: bitnami/minideb:latest
+
+%environment
+	export LC_ALL=C
+
+%post
+	#Update system packages and index
+	apt-get update && apt-get upgrade -y
+	#Install dependecies
+	apt-get install -y \
+	g++ \
+	libbz2-dev \
+	zlib1g-dev \
+	cmake \
+	wget \
+	python3
+
+	#Move to src directory and download SPAdes source
+	cd /usr/local/src
+	wget http://cab.spbu.ru/files/release3.15.5/SPAdes-3.15.5.tar.gz
+	tar -xzf SPAdes-3.15.5.tar.gz
+	rm -r SPAdes-3.15.5.tar.gz #clean up
+	#Move to spades directory
+	cd /usr/local/src/SPAdes-3.15.5
+	#Compile and specify installation path using PREFIX
+	PREFIX=/usr/local ./spades_compile.sh
+	#Create soft link pointing to python3 location for running python scripts
+	#Note, if you do not point to python3, you will get an error from env program
+	ln -s /usr/bin/python3 /usr/bin/python
+	#Add SPAdes installation path to PATH variable
+	export PATH=/usr/local/bin:$PATH
+
+%labels
+rjmadzime
