@@ -27,9 +27,9 @@ Options:
 
 # Requirements for running pipeline
 
-Nextflow version 21+
+Nextflow version 21 or higher
 
-Singularity version 3.5+
+Singularity version 3.5 or higher
 
 # Input
 
@@ -43,7 +43,7 @@ BLAST tables
 
 deepARG tables
 
-Annotation files
+Gene annotation files
 
 Binning statistics reports
 
